@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wheel with HTML and CSS</title>
+    <style>
+        /* Create the wheel container */
+        .wheel {
+            width: 200px;
+            height: 200px;
+            border-radius: 50%;
+            border: 10px solid #000;
+            position: relative;
+            margin: 50px auto;
+            background-color: lightgray;
+        }
+
+        /* Style for the wheel spokes */
+        .spoke {
+            width: 10px;
+            height: 100%;
+            background-color: black;
+            position: absolute;
+            top: 0;
+            left: 50%;
+            transform-origin: 50% 100%;
+        }
+
+        /* Rotate the spokes to form a wheel */
+        .spoke:nth-child(1) { transform: rotate(0deg); }
+        .spoke:nth-child(2) { transform: rotate(45deg); }
+        .spoke:nth-child(3) { transform: rotate(90deg); }
+        .spoke:nth-child(4) { transform: rotate(135deg); }
+        .spoke:nth-child(5) { transform: rotate(180deg); }
+        .spoke:nth-child(6) { transform: rotate(225deg); }
+        .spoke:nth-child(7) { transform: rotate(270deg); }
+        .spoke:nth-child(8) { transform: rotate(315deg); }
+    </style>
+</head>
+<body>
+    <div class="wheel">
+        <div class="spoke"></div>
+        <div class="spoke"></div>
+        <div class="spoke"></div>
+        <div class="spoke"></div>
+        <div class="spoke"></div>
+        <div class="spoke"></div>
+        <div class="spoke"></div>
+        <div class="spoke"></div>
+    </div>
+</body>
+</html>
