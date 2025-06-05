@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Writer's Story Generator</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+        }
+
+        .container {
+            text-align: center;
+            padding: 20px;
+            max-width: 500px;
+            width: 100%;
+        }
+
+        h1 {
+            margin-bottom: 30px;
+            font-size: 2.5em;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .wheel-container {
+            position: relative;
+            width: 300px;
+            height: 300px;
+            margin: 0 auto 30px;
+        }
+
+        .wheel {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            position: relative;
+            overflow: hidden;
+            border: 8px solid white;
+            box-shadow: 0 0 20px rgba(0,0,0,0.3);
+            transition: transform 3s cubic-bezier(0.23, 1, 0.32, 1);
+        }
+
+        .wheel-segment {
+            position: absolute;
+            width: 50%;
+            height: 50%;
+            transform-origin: right bottom;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 12px;
+            color: white;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.7);
+            padding: 8px;
+            text-align: center;
+            line-height: 1.2;
+        }
+
+        .pointer {
+            position: absolute;
+            top: -20px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 0;
+            height: 0;
+            border-left: 15px solid transparent;
+            border-right: 15px solid transparent;
+            border-top: 30px solid #ff6b6b;
+            z-index: 10;
+            filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3));
+        }
+
+        .spin-btn {
+            background: linear-gradient(45deg, #ff6b6b, #ff8e8e);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 50px;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            margin: 10px;
+        }
+
+        .spin-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.3);
+        }
+
+        .spin-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .current-step {
+            font-size: 1.5em;
+            margin-bottom: 20px;
+            color: #fff;
+        }
+
+        .choices-made {
+            background: rgba(255,255,255,0.1);
+            padding: 20px;
+            border-radius: 15px;
+            margin-top: 20px;
+            backdrop-filter: blur(10px);
+        }
+
+        .choice-item {
+            margin: 10px 0;
+            padding: 8px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 8px;
+        }
+
+        .reset-btn {
+            background: linear-gradient(45deg, #4ecdc4, #44a08d);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 25px;
+            font-size: 14px;
+            cursor: pointer;
+            margin-top: 15px;
+            transition: all 0.3s ease;
+        }
+
+        .reset-btn:hover {
+            transform: translateY(-1px);
+        }
+
+        .final-result {
+            background: linear-gradient(45deg, #f093fb, #f5576c);
+            padding: 30px;
+            border-radius: 20px;
+            margin-top: 20px;
+            font-size: 1.2em;
+            line-height: 1.6;
+        }
+
+        .custom-input {
+            background: rgba(255,255,255,0.2);
+            border: 2px solid rgba(255,255,255,0.3);
+            color: white;
+            padding: 10px 15px;
+            border-radius: 25px;
+            font-size: 16px;
+            margin: 10px;
+            width: 250px;
+            text-align: center;
+        }
+
+        .custom-input::placeholder {
+            color: rgba(255,255,255,0.7);
+        }
+
+        .submit-btn {
+            background: linear-gradient(45deg, #4ecdc4, #44a08d);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 25px;
+            font-size: 14px;
+            cursor: pointer;
+            margin: 5px;
+            transition: all 0.3s ease;
+        }
+
+        .submit-btn:hover {
+            transform: translateY(-1px);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>â¨ Writer's Story Generator â¨</h1>
+        
+        <div class="current-step" id="currentStep">Step 1: Choose Genre</div>
+        
+        <div class="wheel-container">
+            <div class="pointer"></div>
+            <div class="wheel" id="wheel"></div>
+        </div>
+        
+        <button class="spin-btn" onclick="spinWheel()" id="spinBtn">SPIN THE WHEEL!</button>
+        
+        <div id="customChoice" style="display: none;">
+            <input type="text" class="custom-input" id="customInput" placeholder="Enter your custom genre...">
+            <br>
+            <button class="submit-btn" onclick="submitCustomChoice()">Submit</button>
+        </div>
+        
+        <div class="choices-made" id="choicesMade" style="display: none;">
+            <h3>Your Story Elements:</h3>
+            <div id="choicesList"></div>
+            <button class="reset-btn" onclick="resetGame()">Start Over</button>
+        </div>
+        
+        <div class="final-result" id="finalResult" style="display: none;"></div>
+    </div>
+
+    <script>
+        let currentStep = 0;
+        let choices = {};
+        let isSpinning = false;
+
+        const stepData = {
+            0: {
+                name: "Genre",
+                options: ["Fantasy", "Comedy", "Horror", "Sci-fi", "Romance", "Mystery", "Adventure", "Drama", "Your Choice"]
+            },
+            1: {
+                name: "Time/Place",
+                options: ["Urban", "Rural", "Historical Settings", "Extreme Environment"]
+            },
+            2: {
+                name: "Character",
+                options: ["Main Character", "Secondary Character"]
+            },
+            3: {
+                name: "Gender",
+                options: ["Female", "Male", "Non Gender"]
+            },
+            4: {
+                name: "Morality",
+                options: ["Evil", "Good"]
+            },
+            5: {
+                name: "Character Job",
+                options: [] // Will be populated based on previous choices
+            }
+        };
+
+        const characterTypes = {
+            "Main Character + Good": ["The Chosen One", "Misfit", "Ordinary", "King/Queen", "Brave Knight", "Misunderstood Teen", "A Trickster"],
+            "Main Character + Evil": ["Spy", "Rebel", "Tyrant", "Abstract Force", "Rival"],
+            "Secondary Character + Evil": ["Minion", "Spy of Villain", "Creator of Villain", "Villain's Motive", "Ally of Villain"],
+            "Secondary Character + Good": ["Mentor", "Foil", "Friend", "Comic Relief", "Guardian", "Martyr"]
+        };
+
+        const colors = ['#ff6b6b', '#4ecdc4', '#45b7d1', '#96ceb4', '#feca57', '#ff9ff3', '#54a0ff', '#5f27cd', '#fd79a8'];
+
+        function createWheel() {
+            const wheel = document.getElementById('wheel');
+            let options;
+            
+            if (currentStep === 5) {
+                // Character type step - determine options based on previous choices
+                const characterChoice = choices["Character"];
+                const moralityChoice = choices["Morality"];
+                const key = `${characterChoice} + ${moralityChoice}`;
+                options = characterTypes[key] || [];
+                stepData[5].options = options;
+            } else {
+                options = stepData[currentStep].options;
+            }
+            
+            const segmentAngle = 360 / options.length;
+            
+            wheel.innerHTML = '';
+            
+            options.forEach((option, index) => {
+                const segment = document.createElement('div');
+                segment.className = 'wheel-segment';
+                segment.textContent = option;
+                segment.style.backgroundColor = colors[index % colors.length];
+                segment.style.transform = `rotate(${index * segmentAngle}deg) skew(${90 - segmentAngle}deg)`;
+                wheel.appendChild(segment);
+            });
+        }
+
+        function spinWheel() {
+            if (isSpinning) return;
+            
+            isSpinning = true;
+            document.getElementById('spinBtn').disabled = true;
+            
+            const wheel = document.getElementById('wheel');
+            const options = stepData[currentStep].options;
+            const segmentAngle = 360 / options.length;
+            
+            // Random spin (3-5 full rotations plus random position)
+            const spins = 3 + Math.random() * 2;
+            const finalAngle = Math.random() * 360;
+            const totalRotation = spins * 360 + finalAngle;
+            
+            wheel.style.transform = `rotate(${totalRotation}deg)`;
+            
+            setTimeout(() => {
+                // Calculate which segment was selected
+                const normalizedAngle = (360 - (finalAngle % 360)) % 360;
+                const selectedIndex = Math.floor(normalizedAngle / segmentAngle);
+                const selectedOption = options[selectedIndex];
+                
+                // Handle "Your Choice" option
+                if (selectedOption === "Your Choice") {
+                    document.getElementById('customChoice').style.display = 'block';
+                    document.getElementById('spinBtn').style.display = 'none';
+                    isSpinning = false;
+                    return;
+                }
+                
+                // Store the choice
+                choices[stepData[currentStep].name] = selectedOption;
+                
+                // Move to next step
+                if (currentStep < 5) {
+                    currentStep++;
+                    
+                    // Skip character type step if not Main Character + Good/Evil
+                    if (currentStep === 5) {
+                        const characterChoice = choices["Character"];
+                        const moralityChoice = choices["Morality"];
+                        const key = `${characterChoice} + ${moralityChoice}`;
+                        
+                        if (!characterTypes[key]) {
+                            showFinalResult();
+                            return;
+                        }
+                    }
+                    
+                    updateStep();
+                } else {
+                    showFinalResult();
+                }
+                
+                isSpinning = false;
+                document.getElementById('spinBtn').disabled = false;
+            }, 3000);
+        }
+
+        function submitCustomChoice() {
+            const customInput = document.getElementById('customInput');
+            const customValue = customInput.value.trim();
+            
+            if (customValue) {
+                choices[stepData[currentStep].name] = customValue;
+                document.getElementById('customChoice').style.display = 'none';
+                document.getElementById('spinBtn').style.display = 'inline-block';
+                
+                currentStep++;
+                updateStep();
+            }
+        }
+
+        function updateStep() {
+            document.getElementById('currentStep').textContent = `Step ${currentStep + 1}: Choose ${stepData[currentStep].name}`;
+            createWheel();
+            updateChoicesDisplay();
+        }
+
+        function updateChoicesDisplay() {
+            const choicesMade = document.getElementById('choicesMade');
+            const choicesList = document.getElementById('choicesList');
+            
+            if (Object.keys(choices).length > 0) {
+                choicesMade.style.display = 'block';
+                choicesList.innerHTML = '';
+                
+                for (const [category, choice] of Object.entries(choices)) {
+                    const choiceItem = document.createElement('div');
+                    choiceItem.className = 'choice-item';
+                    choiceItem.innerHTML = `<strong>${category}:</strong> ${choice}`;
+                    choicesList.appendChild(choiceItem);
+                }
+            }
+        }
+
+        function showFinalResult() {
+            const finalResult = document.getElementById('finalResult');
+            let resultText = "ð Your Story Prompt is Ready! ð<br><br>";
+            
+            resultText += `<strong>Genre:</strong> ${choices["Genre"]}<br><br>`;
+            
+            resultText += `Write a ${choices["Genre"]} story about a <strong>${choices["Morality"]} ${choices["Gender"]}</strong> `;
+            
+            if (choices["Character Job"]) {
+                resultText += `<strong>${choices["Character Job"]}</strong> `;
+            }
+            
+            if (choices["Character"] === "Main Character") {
+                resultText += "as the protagonist ";
+            } else {
+                resultText += "as a secondary character ";
+            }
+            
+            resultText += `in a <strong>${choices["Time/Place"]}</strong> setting.`;
+            
+            finalResult.innerHTML = resultText;
+            finalResult.style.display = 'block';
+            
+            document.getElementById('spinBtn').style.display = 'none';
+            document.getElementById('currentStep').style.display = 'none';
+            document.querySelector('.wheel-container').style.display = 'none';
+        }
+
+        function resetGame() {
+            currentStep = 0;
+            choices = {};
+            isSpinning = false;
+            
+            document.getElementById('finalResult').style.display = 'none';
+            document.getElementById('choicesMade').style.display = 'none';
+            document.getElementById('customChoice').style.display = 'none';
+            document.getElementById('spinBtn').style.display = 'inline-block';
+            document.getElementById('spinBtn').disabled = false;
+            document.getElementById('currentStep').style.display = 'block';
+            document.querySelector('.wheel-container').style.display = 'block';
+            document.getElementById('customInput').value = '';
+            
+            updateStep();
+        }
+
+        // Initialize the game
+        createWheel();
+    </script>
+</body>
+</html>
+  
